@@ -1,5 +1,5 @@
 tests:
-	python tests.py
+	cd reversi && python tests.py
 
 .ONESHELL:
 ci:
