@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import (print_function, division, absolute_import)
 
 from unittest import TestCase, main
@@ -24,6 +26,28 @@ class TestReversi(TestCase):
 
     def test_D5_is_34(self):
         self.assertEquals(self.board.coordinates('D5'), (3, 4))
+
+    def test_D4_is_B(self):
+        self.assertEquals(self.board.cell('D4'), 'B')
+
+    def test_D5_is_W(self):
+        self.assertEquals(self.board.cell('D5'), 'W')
+
+    def test_A1_is_empty(self):
+        self.assertEquals(self.board.cell('A1'), '.')
+
+    def test_D3_is_valid(self):
+        self.assertTrue(self.board.cell_is_valid('D3'))
+
+    def test_D4_is_invalid(self):
+        self.assertFalse(self.board.cell_is_valid('D4'))
+
+    def test_E4_is_invalid(self):
+        self.assertFalse(self.board.cell_is_valid('E4'))
+
+    def test_N_of_D3_is_empty(self):
+        self.assertEquals(self.board.north_of_cell('D3'), 'D2')
+        self.assertTrue(self.board.cell_is_valid('D2'))
 
 
 if __name__ == '__main__':
