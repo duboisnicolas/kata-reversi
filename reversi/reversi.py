@@ -7,6 +7,10 @@ COLUMNS = 'ABCDEFGH'
 ROWS = '12345678'
 
 
+class CellOutOfBoardError(ValueError):
+    pass
+
+
 class Cell(object):
 
     def __init__(self, **kwargs):
@@ -15,10 +19,20 @@ class Cell(object):
             self.x, self.y = Cell.compute_coordinates(self.pos)
         elif 'coordinates' in kwargs:
             self.x, self.y = kwargs['coordinates']
-            self.pos = '{x}{y}'.format(x=COLUMNS[self.x], y=ROWS[self.y])
+            self.pos = Cell.compute_pos(self.coordinates)
         else:
-            raise ValueError('Cannot create Cell')
+            raise ValueError('Cannot create Cell object. Parameter missing.')
         self.content = kwargs.get('content', Board.EMPTY_CELL)
+
+    @property
+    def display(self):
+        if self.content == 'B':
+            return '⚫'
+        elif self.content == 'W':
+            return '⚪'
+        elif self.is_empty:
+            return ' '
+        raise ValueError('Cannot determine cell content.')
 
     @property
     def coordinates(self):
@@ -31,7 +45,11 @@ class Cell(object):
     @staticmethod
     def compute_coordinates(pos):
         col, row = list(pos)
-        return (COLUMNS.index(col), ROWS.index(row))
+        try:
+            return (COLUMNS.index(col), ROWS.index(row))
+        except ValueError:
+            raise CellOutOfBoardError
+        return None
 
     @staticmethod
     def compute_pos(coordinates):
@@ -82,14 +100,14 @@ class Cell(object):
 class Board(object):
 
     #         A B C D E F G H
-    BOARD = ('. . . . . . . .\n'  # 1
-             '. . . . . . . .\n'  # 2
-             '. . . . . . . .\n'  # 3
-             '. . . B W . . .\n'  # 4
-             '. . . W B . . .\n'  # 5
-             '. . . . . . . .\n'  # 6
-             '. . . . . . . .\n'  # 7
-             '. . . . . . . .')   # 8
+    INIT = ('. . . . . . . . \n'   # 1
+            '. . . . . . . . \n'   # 2
+            '. . . . . . . . \n'   # 3
+            '. . . B W . . . \n'   # 4
+            '. . . W B . . . \n'   # 5
+            '. . . . . . . . \n'   # 6
+            '. . . . . . . . \n'   # 7
+            '. . . . . . . .   ')  # 8
 
     EMPTY_CELL = '.'
 
@@ -97,12 +115,31 @@ class Board(object):
         self.current_player = 'B'
         self.opponent = 'B' if self.current_player == 'W' else 'B'
         self.board = {}
-        for y, row in enumerate(self.BOARD.split('\n')):
-            self.board.setdefault(y, {})
-            for x, cell in enumerate(row.split(' ')):
-                self.board[y].setdefault(x, Cell(coordinates=(x, y), content=cell))
+        for x, row in enumerate(self.INIT.split('\n')):
+            self.board.setdefault(x, {})
+            for y, cell in enumerate(row.strip().split(' ')):
+                self.board[x].setdefault(y, Cell(coordinates=(x, y), content=cell))
 
     def cell(self, pos):
         x, y = Cell.compute_coordinates(pos)
-        return self.board[y][x]
+        return self.board[x][y]
 
+    def __str__(self):
+        LINE = '   +' + '———+' * len(COLUMNS)
+
+        board = ' ' * 4
+        for col in COLUMNS:
+            board += ' {col}  '.format(col=col)
+        board += '\n'
+        board += LINE
+        for i, row in self.board.iteritems():
+            board += '\n {i} │'.format(i=i + 1)
+            for cell in row.values():
+                board += ' {cell.display} │'.format(cell=cell)
+            board += '\n'
+            board += LINE
+        return '\n' + board + '\n'
+
+if __name__ == '__main__':
+    b = Board()
+    print(b)

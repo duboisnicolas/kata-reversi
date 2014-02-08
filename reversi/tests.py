@@ -4,7 +4,7 @@ from __future__ import (print_function, division, absolute_import)
 
 from unittest import TestCase, main
 
-from reversi import Cell, Board
+from reversi import Cell, Board, CellOutOfBoardError
 
 
 class TestCell(TestCase):
@@ -77,6 +77,10 @@ class TestBoard(TestCase):
 
     def test_SW_of_A8_is_None(self):
         self.assertIsNone(self.board.cell('A8').south_west)
+
+    def test_K9(self):
+        with self.assertRaises(CellOutOfBoardError):
+            self.assertEquals(self.board.cell('K9').content, 'foo')
 
 
 if __name__ == '__main__':
