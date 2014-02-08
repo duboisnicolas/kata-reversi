@@ -141,5 +141,4 @@ class Board(object):
         return '\n' + board + '\n'
 
 if __name__ == '__main__':
-    b = Board()
-    print(b)
+    print(Board())
