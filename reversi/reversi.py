@@ -115,30 +115,35 @@ class Board(object):
         self.current_player = 'B'
         self.opponent = 'B' if self.current_player == 'W' else 'B'
         self.board = {}
-        for x, row in enumerate(self.INIT.split('\n')):
-            self.board.setdefault(x, {})
-            for y, cell in enumerate(row.strip().split(' ')):
-                self.board[x].setdefault(y, Cell(coordinates=(x, y), content=cell))
+        for y, row in enumerate(self.INIT.split('\n')):
+            self.board.setdefault(y, {})
+            for x, cell in enumerate(row.strip().split(' ')):
+                self.board[y].setdefault(x, Cell(coordinates=(x, y), content=cell))
 
     def cell(self, pos):
         x, y = Cell.compute_coordinates(pos)
-        return self.board[x][y]
+        return self.board[y][x]
 
     def __str__(self):
-        LINE = '   +' + '———+' * len(COLUMNS)
+        board = ''
 
-        board = ' ' * 4
-        for col in COLUMNS:
-            board += ' {col}  '.format(col=col)
-        board += '\n'
-        board += LINE
+        draw_line = lambda: '   +' + '———+' * len(COLUMNS)
+
+        def draw_headers():
+            board = '\n' + ' ' * 4
+            for col in COLUMNS:
+                board += ' {col}  '.format(col=col)
+            board += '\n'
+            return board
+
+        board += draw_headers()
+        board += draw_line()
         for i, row in self.board.iteritems():
-            board += '\n {i} │'.format(i=i + 1)
+            board += '\n {} │'.format(i + 1)
             for cell in row.values():
                 board += ' {cell.display} │'.format(cell=cell)
-            board += '\n'
-            board += LINE
-        return '\n' + board + '\n'
-
-if __name__ == '__main__':
-    print(Board())
+            board += ' {}\n'.format(i + 1)
+            board += draw_line()
+        board += draw_headers()
+        board += '\n\nCurrent player: {}'.format('⚫' if self.current_player == 'B' else '⚪')
+        return board + '\n'
