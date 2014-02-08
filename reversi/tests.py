@@ -4,7 +4,7 @@ from __future__ import (print_function, division, absolute_import)
 
 from unittest import TestCase, main
 
-from reversi import Cell
+from reversi import Cell, Board
 
 
 class TestCell(TestCase):
@@ -31,6 +31,53 @@ class TestCell(TestCase):
     def test_only_content_error(self):
         with self.assertRaises(ValueError):
             Cell(content='foo')
+
+
+class TestBoard(TestCase):
+
+    def setUp(self):
+        self.board = Board()
+
+    def test_D4_is_B(self):
+        self.assertEquals(self.board.cell('D4').content, 'B')
+
+    def test_D5_is_W(self):
+        self.assertEquals(self.board.cell('D5').content, 'W')
+
+    def test_A1_is_empty(self):
+        self.assertEquals(self.board.cell('A1').content, Board.EMPTY_CELL)
+        self.assertTrue(self.board.cell('A1').is_empty)
+
+    def test_N_of_D3_is_D2(self):
+        self.assertEquals(self.board.cell('D3').north, 'D2')
+
+    def test_S_of_D3_is_D4(self):
+        self.assertEquals(self.board.cell('D3').south, 'D4')
+
+    def test_E_of_D3_is_E3(self):
+        self.assertEquals(self.board.cell('D3').east, 'E3')
+
+    def test_N_of_A1_is_None(self):
+        self.assertIsNone(self.board.cell('A1').north)
+
+    def test_S_of_E8_is_None(self):
+        self.assertIsNone(self.board.cell('E8').south)
+
+    def test_W_of_A5_is_None(self):
+        self.assertIsNone(self.board.cell('A5').west)
+
+    def test_E_of_H3_is_None(self):
+        self.assertIsNone(self.board.cell('H3').east)
+
+    def test_NE_of_C3_is_D2(self):
+        self.assertEquals(self.board.cell('C3').north_east, 'D2')
+
+    def test_NE_of_H1_is_None(self):
+        self.assertIsNone(self.board.cell('H1').north_east)
+
+    def test_SW_of_A8_is_None(self):
+        self.assertIsNone(self.board.cell('A8').south_west)
+
 
 if __name__ == '__main__':
     main()
