@@ -122,8 +122,8 @@ class Board(object):
 
     def __init__(self):
         self.players = {WHITE: None, BLACK: None}
-        self.current_player = BLACK
-        self.opponent = BLACK if self.current_player == WHITE else BLACK
+        self.current_player = None
+        self.opponent = None
         self.board = {}
         for y, row in enumerate(self.INIT.split('\n')):
             self.board.setdefault(y, {})
@@ -164,7 +164,8 @@ class Board(object):
             board += ' {}\n'.format(i + 1)
             board += draw_line()
         board += draw_headers()
-        board += '\n\nCurrent player: {}'.format('⚫' if self.current_player == BLACK else '⚪')
+        board += '\n\n    Current player: {player.color} {player}'.format(
+            player=self.current_player)
         return board + '\n'
 
 

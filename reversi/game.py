@@ -2,12 +2,17 @@
 
 from __future__ import (print_function, division, absolute_import)
 
-from reversi import Board
+from reversi import Board, Player, BLACK, WHITE
 
 if __name__ == '__main__':
+    nico = Player(color=BLACK, name='Nico')
+    david = Player(color=WHITE, name='David')
+
     board = Board()
-    print(board)
-    board.cell('D6').content = 'B'
-    board.cell('D5').content = 'B'
-    board.current_player = 'W'
+
+    nico.joins(board)
+    david.joins(board)
+
+    # nico.plays('D3')
+
     print(board)
