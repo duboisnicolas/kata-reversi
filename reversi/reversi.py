@@ -231,8 +231,5 @@ class Player(object):
                 if board.cell(getattr(cell, cardinal_point, None)).is_empty:
                     raise BoardRulesError('Not allow.')
 
-        from pprint import pprint
-        pprint(neighborhood)
-
     def __str__(self):
         return getattr(self, 'name', 'Player ' + self.color)
