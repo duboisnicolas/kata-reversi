@@ -6,8 +6,17 @@ from __future__ import (print_function, division, absolute_import)
 COLUMNS = 'ABCDEFGH'
 ROWS = '12345678'
 
+BLACK = 'B'
+WHITE = 'W'
+
+COLORS_AVAILABLE = (BLACK, WHITE)
+
 
 class CellOutOfBoardError(ValueError):
+    pass
+
+
+class BoardRulesError(ValueError):
     pass
 
 
@@ -26,9 +35,9 @@ class Cell(object):
 
     @property
     def display(self):
-        if self.content == 'B':
+        if self.content == BLACK:
             return '⚫'
-        elif self.content == 'W':
+        elif self.content == WHITE:
             return '⚪'
         elif self.is_empty:
             return ' '
@@ -99,7 +108,7 @@ class Cell(object):
 
 class Board(object):
 
-    #         A B C D E F G H
+    #        A B C D E F G H
     INIT = ('. . . . . . . . \n'   # 1
             '. . . . . . . . \n'   # 2
             '. . . . . . . . \n'   # 3
@@ -112,13 +121,23 @@ class Board(object):
     EMPTY_CELL = '.'
 
     def __init__(self):
-        self.current_player = 'B'
-        self.opponent = 'B' if self.current_player == 'W' else 'B'
+        self.players = {WHITE: None, BLACK: None}
+        self.current_player = BLACK
+        self.opponent = BLACK if self.current_player == WHITE else BLACK
         self.board = {}
         for y, row in enumerate(self.INIT.split('\n')):
             self.board.setdefault(y, {})
             for x, cell in enumerate(row.strip().split(' ')):
                 self.board[y].setdefault(x, Cell(coordinates=(x, y), content=cell))
+
+    def add_player(self, player):
+        if self.players[player.color] is not None:
+            raise BoardRulesError('Two player cannot have the same color')
+        self.players[player.color] = player
+        if player.is_black:
+            self.current_player = player
+        elif player.is_white:
+            self.opponent = player
 
     def cell(self, pos):
         x, y = Cell.compute_coordinates(pos)
@@ -145,5 +164,37 @@ class Board(object):
             board += ' {}\n'.format(i + 1)
             board += draw_line()
         board += draw_headers()
-        board += '\n\nCurrent player: {}'.format('⚫' if self.current_player == 'B' else '⚪')
+        board += '\n\nCurrent player: {}'.format('⚫' if self.current_player == BLACK else '⚪')
         return board + '\n'
+
+
+class Player(object):
+    def __init__(self, **kwargs):
+        if 'color' not in kwargs:
+            raise ValueError('Color attribute is mandatory.')
+
+        if kwargs['color'] not in COLORS_AVAILABLE:
+            raise ValueError('Color must be B or W.')
+
+        for key, value in kwargs.iteritems():
+            setattr(self, key, value)
+
+    @property
+    def is_black(self):
+        return self.color == BLACK
+
+    @property
+    def is_white(self):
+        return self.color == WHITE
+
+    def joins(self, board):
+        self.board = board
+        self.board.add_player(self)
+
+    def plays(self, pos):
+        for player in self.board.players.itervalues():
+            if player is None:
+                raise BoardRulesError('Player cannot play alone')
+
+    def __str__(self):
+        return getattr(self, 'name', 'Player ' + self.color)
