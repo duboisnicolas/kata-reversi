@@ -10,6 +10,8 @@ BLACK = 'B'
 WHITE = 'W'
 
 COLORS_AVAILABLE = (BLACK, WHITE)
+CARDINAL_POINTS = ('north', 'north_east', 'east', 'south_east',
+    'south', 'south_west', 'west', 'north_west')
 
 
 class CellOutOfBoardError(ValueError):
@@ -64,8 +66,8 @@ class Cell(object):
     def compute_pos(coordinates):
         x, y = coordinates
         try:
-            assert 0 < x < 8
-            assert 0 < y < 8
+            assert 0 <= x < len(COLUMNS)
+            assert 0 <= y < len(ROWS)
         except AssertionError:
             return None
         return '{x}{y}'.format(x=COLUMNS[x], y=ROWS[y])
@@ -104,6 +106,9 @@ class Cell(object):
 
     def __str__(self):
         return '{cell.pos} ({cell.x},{cell.y}) = "{cell.content}"'.format(cell=self)
+
+    def __repr__(self):
+        return '<{cell}>'.format(cell=self)
 
 
 class Board(object):
@@ -193,9 +198,41 @@ class Player(object):
         self.board.add_player(self)
 
     def plays(self, pos):
-        for player in self.board.players.itervalues():
+        board = self.board
+
+        for player in board.players.itervalues():
             if player is None:
-                raise BoardRulesError('Player cannot play alone')
+                raise BoardRulesError('Player cannot play alone.')
+        if board.current_player != self:
+            raise BoardRulesError('Player cannot play (not current player).')
+
+        cell = board.cell(pos)
+
+        if not cell.is_empty:
+            raise BoardRulesError('Player cannot play not empty cell.')
+
+        neighborhood = []
+        for cardinal_point in CARDINAL_POINTS:
+            current_cell = board.cell(getattr(cell, cardinal_point, None))
+            if not current_cell.is_empty:
+                neighborhood.append((cardinal_point, current_cell))
+
+        if len(neighborhood) == 0:
+            raise BoardRulesError('No neighbor.')
+        if len(neighborhood) == 1:
+            _, cell = neighborhood.pop()
+            if cell.content == board.current_player.color:
+                raise BoardRulesError('Bad single neighbor.')
+
+        for cardinal_point, cell in neighborhood:
+            if cell.content == board.current_player.color:
+                continue
+            else:
+                if board.cell(getattr(cell, cardinal_point, None)).is_empty:
+                    raise BoardRulesError('Not allow.')
+
+        from pprint import pprint
+        pprint(neighborhood)
 
     def __str__(self):
         return getattr(self, 'name', 'Player ' + self.color)

@@ -144,7 +144,45 @@ class TestPlayer(TestCase):
         board = Board()
         david.joins(board)
         with self.assertRaises(BoardRulesError):
-            david.plays('D6')
+            david.plays('A2')
+
+    def test_players_permissions(self):
+        david = Player(color=BLACK)
+        nico = Player(color=WHITE)
+        board = Board()
+        nico.joins(board)
+        david.joins(board)
+        with self.assertRaises(BoardRulesError):
+            nico.plays('D3')
+
+
+class TestPlayerActions(TestCase):
+    def setUp(self):
+        self.board = Board()
+        self.david = Player(color=BLACK, name='David')
+        self.nico = Player(color=WHITE, name='Nico')
+        self.david.joins(self.board)
+        self.nico.joins(self.board)
+
+    def test_david_plays_not_empty_cell(self):
+        with self.assertRaises(BoardRulesError):
+            self.david.plays('D4')  # Black
+        with self.assertRaises(BoardRulesError):
+            self.david.plays('E4')  # White
+
+    def test_david_cannot_play_B2(self):
+        with self.assertRaises(BoardRulesError):
+            self.david.plays('B2')
+
+    def test_david_cannot_play_C3_or_F6(self):
+        with self.assertRaises(BoardRulesError):
+            self.david.plays('C3')
+        with self.assertRaises(BoardRulesError):
+            self.david.plays('F6')
+
+    def test_david_plays_E6_towards_NW(self):
+        with self.assertRaises(BoardRulesError):
+            self.david.plays('E6')
 
 if __name__ == '__main__':
     main()
