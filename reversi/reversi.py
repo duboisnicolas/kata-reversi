@@ -14,11 +14,11 @@ CARDINAL_POINTS = ('north', 'north_east', 'east', 'south_east',
     'south', 'south_west', 'west', 'north_west')
 
 
-class CellOutOfBoardError(ValueError):
+class ReversiRulesError(ValueError):
     pass
 
 
-class BoardRulesError(ValueError):
+class CellOutOfBoardError(ReversiRulesError):
     pass
 
 
@@ -137,7 +137,7 @@ class Board(object):
 
     def add_player(self, player):
         if self.players[player.color] is not None:
-            raise BoardRulesError('Two player cannot have the same color')
+            raise ReversiRulesError('Two player cannot have the same color')
         self.players[player.color] = player
         if player.is_black:
             self.current_player = player
@@ -202,14 +202,14 @@ class Player(object):
 
         for player in board.players.itervalues():
             if player is None:
-                raise BoardRulesError('Player cannot play alone.')
+                raise ReversiRulesError('Player cannot play alone.')
         if board.current_player != self:
-            raise BoardRulesError('Player cannot play (not current player).')
+            raise ReversiRulesError('Player cannot play (not current player).')
 
         cell = board.cell(pos)
 
         if not cell.is_empty:
-            raise BoardRulesError('Player cannot play not empty cell.')
+            raise ReversiRulesError('Player cannot play not empty cell.')
 
         neighborhood = []
         for cardinal_point in CARDINAL_POINTS:
@@ -218,18 +218,18 @@ class Player(object):
                 neighborhood.append((cardinal_point, current_cell))
 
         if len(neighborhood) == 0:
-            raise BoardRulesError('No neighbor.')
+            raise ReversiRulesError('No neighbor.')
         if len(neighborhood) == 1:
             _, cell = neighborhood.pop()
             if cell.content == board.current_player.color:
-                raise BoardRulesError('Bad single neighbor.')
+                raise ReversiRulesError('Bad single neighbor.')
 
         for cardinal_point, cell in neighborhood:
             if cell.content == board.current_player.color:
                 continue
             else:
                 if board.cell(getattr(cell, cardinal_point, None)).is_empty:
-                    raise BoardRulesError('Not allow.')
+                    raise ReversiRulesError('Not allow.')
 
     def __str__(self):
         return getattr(self, 'name', 'Player ' + self.color)

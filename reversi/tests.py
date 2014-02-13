@@ -5,7 +5,7 @@ from __future__ import (print_function, division, absolute_import)
 from unittest import TestCase, main
 
 from reversi import (Cell, Board, Player,
-    BLACK, WHITE, CellOutOfBoardError, BoardRulesError)
+    BLACK, WHITE, CellOutOfBoardError, ReversiRulesError)
 
 
 class TestCell(TestCase):
@@ -122,7 +122,7 @@ class TestPlayer(TestCase):
         player2 = Player(color=BLACK)
         board = Board()
         player1.joins(board)
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             player2.joins(board)
 
     def test_current_player_is_david(self):
@@ -143,7 +143,7 @@ class TestPlayer(TestCase):
         david = Player(color=BLACK)
         board = Board()
         david.joins(board)
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             david.plays('A2')
 
     def test_players_permissions(self):
@@ -152,7 +152,7 @@ class TestPlayer(TestCase):
         board = Board()
         nico.joins(board)
         david.joins(board)
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             nico.plays('D3')
 
 
@@ -165,23 +165,23 @@ class TestPlayerActions(TestCase):
         self.nico.joins(self.board)
 
     def test_david_plays_not_empty_cell(self):
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             self.david.plays('D4')  # Black
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             self.david.plays('E4')  # White
 
     def test_david_cannot_play_B2(self):
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             self.david.plays('B2')
 
     def test_david_cannot_play_C3_or_F6(self):
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             self.david.plays('C3')
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             self.david.plays('F6')
 
     def test_david_plays_E6_towards_NW(self):
-        with self.assertRaises(BoardRulesError):
+        with self.assertRaises(ReversiRulesError):
             self.david.plays('E6')
 
 if __name__ == '__main__':
